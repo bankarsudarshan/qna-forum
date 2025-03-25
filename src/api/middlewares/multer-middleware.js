@@ -9,6 +9,7 @@ const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, uploadDir);
@@ -22,6 +23,16 @@ const storage = multer.diskStorage({
 });
 const upload =  multer({ storage: storage });
 
+const addFilesToReqObject = (req, res, next) => {
+    upload.array('quesFiles', 3)(req, res, function(err) {
+        if(err) {
+            console.error("Multer error:", err);
+            return res.status(500).json({ message: "File upload failed", error: err.message });
+        }
+        next();
+    })
+}
+
 // adds userId from req.user to req.body
 const addUserToReqBody = (req, res, next) => {
     req.body.userId = req.user.id;
@@ -29,6 +40,6 @@ const addUserToReqBody = (req, res, next) => {
 }
 
 module.exports = {
-    upload,
+    addFilesToReqObject,
     addUserToReqBody,
 }

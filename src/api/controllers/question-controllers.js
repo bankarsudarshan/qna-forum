@@ -19,13 +19,13 @@ async function questionControllerPOST(req, res) {
     try {
         const { title, description, userId, categories, parentQuestionId } = req.body;
 
-        const anyFiles = req.files && req.files.length > 0;
+        const numOfFiles = req.files.length;
 
         const questionData = {
             title,
             description,
             user_id: userId,
-            any_files: anyFiles,
+            num_of_files: numOfFiles,
             parent_question_id: parentQuestionId || null
         };
 
@@ -34,18 +34,6 @@ async function questionControllerPOST(req, res) {
         // Insert categories
         console.log(categories);
         // const categoryIds = await CategoryService.addCategoriesToQuestion(question.id, categories);
-
-        
-        // Store uploaded files
-        function cb(file, userId, questionId) {
-            return {
-                user_id: userId,
-                url: `/uploads/${file.filename}`,
-                file_type: file.mimetype,
-                entity_type: "question",
-                entity_id: questionId,
-            };
-        }
 
         // Upload files to Cloudinary
         let uploadedFiles = [];
@@ -61,10 +49,10 @@ async function questionControllerPOST(req, res) {
                 });
 
                 // Delete file from local storage after successful upload
-                fs.unlinkSync(file.path);
+                // fs.unlinkSync(file.path);
             }
             console.log(uploadedFiles);
-            // await FileService.storeFiles(uploadedFiles);  // Store file records in DB
+            // await FileService.storeFiles(uploadedFiles);
         }
 
         SuccessResponse.message = "Successfully created a new question.";

@@ -2,7 +2,7 @@ const axios = require('axios');
 const { StatusCodes } = require('http-status-codes');
 const AppError = require('../utils/error-handlers/app-error');
 const AuthHelpers = require('../utils/helpers/auth-helpers');
-const { SuccessResponse, ErrorResponse } = require('../utils/responses');
+const { ErrorResponse } = require('../utils/responses');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -62,7 +62,6 @@ const isAuthenticated = async (req, res, next) => {
                 .json(ErrorResponse);
 
     } catch (error) {
-        console.log(error.data);
         ErrorResponse.error = error;
         ErrorResponse.message = "authentication service unavailable"
         return res

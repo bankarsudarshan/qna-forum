@@ -9,7 +9,7 @@ router.get("/",
 );
 router.post("/",
     AuthMiddleware.isAuthenticated,
-    MulterMiddleware.upload.array('quesFiles', 3),
+    MulterMiddleware.addFilesToReqObject,
     MulterMiddleware.addUserToReqBody,
     QuestionMiddlewares.validateCreateRequest,
     QuestionControllers.questionControllerPOST

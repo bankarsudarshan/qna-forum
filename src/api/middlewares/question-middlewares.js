@@ -4,7 +4,6 @@ const AppError = require("../utils/error-handlers/app-error");
 
 function validateCreateRequest(req, res, next) {
 
-    console.log(req.body);
     const { title, description, categories, userId } = req.body;
 
     const errors = [];
