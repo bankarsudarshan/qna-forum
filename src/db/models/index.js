@@ -7,7 +7,6 @@ const process = require('process');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require('../../config/database')[env];  // Use database.js
-const logger = require('../../config/logger'); // Import logger
 const db = {};
 
 // Initialize Sequelize instance
@@ -17,7 +16,7 @@ const sequelize = new Sequelize(
   config.password,
   {
     ...config,
-    logging: (msg) => logger.info(msg), // Use logger for query logging
+    logging: console.log, // Use logger for query logging
   }
 );
 

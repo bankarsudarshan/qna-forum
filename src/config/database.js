@@ -1,5 +1,4 @@
 require('dotenv').config();
-const logger = require('./logger');
 
 module.exports = {
   development: {
@@ -8,7 +7,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: "postgres",
-    logging: (msg) => logger.info(msg),
+    logging: false,
   },
   test: {
     username: process.env.DB_TEST_USERNAME,
