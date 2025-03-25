@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const { QuestionService } = require("../services");
-const { SuccessResponse, ErrorResponse } = require("../utils");
+const { SuccessResponse, ErrorResponse } = require("../utils/responses");
 const Cloudinary = require('../utils/cloudinary');
 
 /*
@@ -36,38 +36,39 @@ async function questionControllerPOST(req, res) {
         // const categoryIds = await CategoryService.addCategoriesToQuestion(question.id, categories);
 
         // Upload files to Cloudinary
-        let uploadedFiles = [];
-        if (anyFiles) {
-            for (const file of req.files) {
-                const cloudinaryUrl = await Cloudinary.uploadOnCloudinary(file.path);
-                uploadedFiles.push({
-                    user_id: userId,
-                    url: cloudinaryUrl,
-                    file_type: file.mimetype,
-                    entity_type: "question",
-                    entity_id: question.id
-                });
+        // let uploadedFiles = [];
+        // if (anyFiles) {
+        //     for (const file of req.files) {
+        //         const cloudinaryUrl = await Cloudinary.uploadOnCloudinary(file.path);
+        //         uploadedFiles.push({
+        //             user_id: userId,
+        //             url: cloudinaryUrl,
+        //             file_type: file.mimetype,
+        //             entity_type: "question",
+        //             entity_id: question.id
+        //         });
 
-                // Delete file from local storage after successful upload
-                // fs.unlinkSync(file.path);
-            }
-            console.log(uploadedFiles);
-            // await FileService.storeFiles(uploadedFiles);
-        }
+        //         // Delete file from local storage after successful upload
+        //         // fs.unlinkSync(file.path);
+        //     }
+        //     console.log(uploadedFiles);
+        //     // await FileService.storeFiles(uploadedFiles);
+        // }
 
         SuccessResponse.message = "Successfully created a new question.";
         SuccessResponse.data = {
             question,
             categories,
-            uploadedFiles
+            // uploadedFiles
         };
 
         return res.status(StatusCodes.CREATED).json(SuccessResponse);
 
     } catch (error) {
-        console.error("Error while creating question:", error);
+        // console.error("Error while creating question:", error);
+        ErrorResponse.message = "Error occurred while inserting the question in database";
         ErrorResponse.error = error;
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+        return res.status(error.statusCode).json(ErrorResponse);
     }
 }
 

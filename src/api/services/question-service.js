@@ -9,15 +9,17 @@ async function insertQuestion(data) {
         const question = await questionRepository.insertTuple(data);
         return question;
     } catch (error) {
-        console.log("got error ", error);
+        // console.log("got error ", error);
+        let explanation = [];
+        error.errors.forEach((err) => {
+            explanation.push(`question's ${err.message}`);
+        });
         if (error.name == "SequelizeValidationError") {
-            let explanation = [];
-            error.errors.forEach((err) => {
-                explanation.push(err.message);
-            });
-            throw new AppError(explanation, StatusCodes.BAD_REQUEST);
+            throw new AppError("DatabaseValidationError", explanation, StatusCodes.BAD_REQUEST);
+        } else if (error.name == "SequelizeUniqueConstraintError") {
+            throw new AppError("DatabaseUniqueConstraintError", explanation, StatusCodes.BAD_REQUEST);
         }
-        throw new AppError("Cannot ceate an question object", StatusCodes.INTERNAL_SERVER_ERROR);
+        throw new AppError("AppError", explanation, StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
