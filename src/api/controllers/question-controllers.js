@@ -29,11 +29,11 @@ async function questionControllerPOST(req, res) {
             parent_question_id: parentQuestionId || null
         };
 
-        const question = await QuestionService.insertQuestion(questionData);
+        const questionRes = await QuestionService.insertQuestion(questionData);
 
         // Insert categories
         console.log(categories);
-        // const categoryIds = await CategoryService.addCategoriesToQuestion(question.id, categories);
+        const categoryRes = await QuestionService.addCategoriesToQuestion(questionRes, categories);
 
         // Upload files to Cloudinary
         // let uploadedFiles = [];
@@ -57,15 +57,15 @@ async function questionControllerPOST(req, res) {
 
         SuccessResponse.message = "Successfully created a new question.";
         SuccessResponse.data = {
-            question,
-            categories,
+            questionRes,
+            categoryRes,
             // uploadedFiles
         };
 
         return res.status(StatusCodes.CREATED).json(SuccessResponse);
 
     } catch (error) {
-        // console.error("Error while creating question:", error);
+        console.error("Error while creating question:", error);
         ErrorResponse.message = "Error occurred while inserting the question in database";
         ErrorResponse.error = error;
         return res.status(error.statusCode).json(ErrorResponse);

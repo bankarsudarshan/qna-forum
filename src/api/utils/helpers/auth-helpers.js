@@ -11,7 +11,7 @@ const handleUnsuccessfulAuthResponse = (authServiceResponse) => {
         if (authServiceResponse.error.name === "TokenExpiredError") {
             return {
                 success: authServiceResponse.success,
-                message: `auth service says - ${authServiceResponse.message}`,
+                message: `auth service says - ${authServiceResponse.message}\nthe status code in error message is 'OK 200', because it was a successful request-reply cycle`,
                 data: {},
                 error: authServiceResponse.error,
             };

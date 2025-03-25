@@ -42,10 +42,10 @@ const isAuthenticated = async (req, res, next) => {
             }
         */
         if(!response.data.success) {
-            ErrorResponse = AuthHelpers.handleUnsuccessfulAuthResponse(response.data);
+            let errorResponse = AuthHelpers.handleUnsuccessfulAuthResponse(response.data);
             return res
-                    .status(ErrorResponse.error.statusCode)
-                    .json(ErrorResponse);
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .json(errorResponse);
         }
 
         // appending userId returned by /isAuthenticated to req object

@@ -1,8 +1,9 @@
 const { StatusCodes } = require("http-status-codes");
-const { QuestionRepository } = require('../repositories');
+const { QuestionRepository, CategoryRepository } = require('../repositories');
 const AppError = require("../utils/error-handlers/app-error");
 
 const questionRepository = new QuestionRepository();
+const categoryRepository = new CategoryRepository();
 
 async function insertQuestion(data) {
     try {
@@ -20,6 +21,17 @@ async function insertQuestion(data) {
             throw new AppError("DatabaseUniqueConstraintError", explanation, StatusCodes.BAD_REQUEST);
         }
         throw new AppError("AppError", explanation, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function addCategoriesToQuestion(question, categories) {
+    try {
+        const categoryIds = await categoryRepository.getCategoryIds(categories);
+        const response = await question.addCategories(categoryIds);
+        return response;
+    } catch (error) {
+        console.log('something went wrong in the addCategoriesToQuestion function of QuestionService');
+        throw error;
     }
 }
 
@@ -70,6 +82,7 @@ async function updateQuestion(id, data) { // this will update the capacity of th
 
 module.exports = {
     insertQuestion,
+    addCategoriesToQuestion,
     getQuestions,
     getQuestion,
     deleteQuestion,
