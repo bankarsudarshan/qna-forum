@@ -8,7 +8,6 @@ class CrudRepository {
 
     // this method of the class CrudRepository will insert the 'data' in the table corresponding to 'model'
     async insertTuple(data) {
-        console.log('i will say hi! if post request data reached to insertTuple function of crud-repository');
         const response = await this.model.create(data);
         return response;
     }

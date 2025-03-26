@@ -2,7 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { QuestionService, FileService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
 const Cloudinary = require('../utils/cloudinary');
-const { format } = require("sequelize/lib/utils");
+const fs = require('fs');
 
 /*
  * POST: /questions
@@ -50,10 +50,12 @@ async function questionControllerPOST(req, res) {
                 });
                 filePaths.push(file.path) //used for fs.unlinkSync later
             }
-            console.log(uploadedFiles);
         }
         const filesRes = await FileService.insertFiles(uploadedFiles);
         // all files associated with question have been uploaded to cloudinary. Remove them from the server
+        for(let filePath of filePaths) {
+            fs.unlinkSync(filePath);
+        }
 
         SuccessResponse.message = "Successfully created a new question.";
         SuccessResponse.data = {
