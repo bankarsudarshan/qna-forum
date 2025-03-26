@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { QuestionService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
 const Cloudinary = require('../utils/cloudinary');
+const { format } = require("sequelize/lib/utils");
 
 /*
  * POST: /questions
@@ -32,34 +33,32 @@ async function questionControllerPOST(req, res) {
         const questionRes = await QuestionService.insertQuestion(questionData);
 
         // Insert categories
-        console.log(categories);
         const categoryRes = await QuestionService.addCategoriesToQuestion(questionRes, categories);
 
         // Upload files to Cloudinary
-        // let uploadedFiles = [];
-        // if (anyFiles) {
-        //     for (const file of req.files) {
-        //         const cloudinaryUrl = await Cloudinary.uploadOnCloudinary(file.path);
-        //         uploadedFiles.push({
-        //             user_id: userId,
-        //             url: cloudinaryUrl,
-        //             file_type: file.mimetype,
-        //             entity_type: "question",
-        //             entity_id: question.id
-        //         });
-
-        //         // Delete file from local storage after successful upload
-        //         // fs.unlinkSync(file.path);
-        //     }
-        //     console.log(uploadedFiles);
-        //     // await FileService.storeFiles(uploadedFiles);
-        // }
+        let uploadedFiles = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const cloudinaryRes = await Cloudinary.uploadOnCloudinary(file.path);
+                uploadedFiles.push({
+                    cloudinary_public_id: cloudinaryRes.public_id,
+                    url: cloudinaryRes.secure_url,
+                    file_type: cloudinaryRes.resource_type,
+                    entity_type: "question",
+                    entity_id: questionRes.id
+                });
+            }
+            console.log('exited for loop')
+            console.log(uploadedFiles);
+            // await FileService.storeFiles(uploadedFiles);
+            // all files associated with question have been uploaded to cloudinary. Remove them from the server
+        }
 
         SuccessResponse.message = "Successfully created a new question.";
         SuccessResponse.data = {
             questionRes,
             categoryRes,
-            // uploadedFiles
+            uploadedFiles
         };
 
         return res.status(StatusCodes.CREATED).json(SuccessResponse);

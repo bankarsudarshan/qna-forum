@@ -17,14 +17,8 @@ async function uploadOnCloudinary(localFilePath) {
         const uploadResult = await cloudinary.uploader.upload(localFilePath, {
             resource_type: 'auto'
         });
-        console.log(uploadResult);
-
-        // Optimize delivery by resizing and applying auto-format and auto-quality
-        const optimizeUrl = cloudinary.url('shoes', {
-            fetch_format: 'auto',
-            quality: 'auto'
-        });
-        console.log(optimizeUrl); 
+        console.log('cloudinary upload result: ', uploadResult);
+        return uploadResult;
 
     } catch (error) {
         fs.unlinkSync(localFilePath); // remove the locally saved temporary file as the upload operation got failed
