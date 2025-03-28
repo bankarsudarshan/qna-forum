@@ -1,9 +1,7 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Question extends Model {
+  class Answer extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,23 +9,24 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.Category, {
-        through: 'question_categories',
+      this.belongsTo(models.Question, {
         foreignKey: 'question_id',
-        otherKey: 'category_id',
-        sourceKey: 'id',
-        timestamps: false,
-      });
-      this.hasMany(models.Answer, {
-        foreignKey: 'question_id',
-        sourceKey: 'id',
+        targetKey: 'id',
       })
     }
   }
-  Question.init({
+  Answer.init({
+    question_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'questions',
+        key: 'id',
+      }
+    },
     title: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     description: {
       type: DataTypes.TEXT,
@@ -37,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     num_of_files: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
       validate: {
         max: 3,
       }
@@ -45,23 +45,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    parent_question_id: {
-      type: DataTypes.INTEGER
-    },
-    num_of_answers: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    },
-    closed: {
+    is_accepted: {
       type: DataTypes.BOOLEAN,
-      allowNull: false,
       defaultValue: false,
-    }
+    },
   }, {
     sequelize,
-    modelName: 'Question',
-    tableName: 'questions'
+    modelName: 'Answer',
+    tableName: 'answers',
   });
-  return Question;
+  return Answer;
 };
