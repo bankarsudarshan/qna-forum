@@ -5,6 +5,9 @@ const { QuestionControllers } = require('../../controllers')
 const router = Router();
 
 router.get("/",
+    QuestionControllers.questionControllerGETAll
+);
+router.get("/:id",
     QuestionControllers.questionControllerGET
 );
 router.post("/",

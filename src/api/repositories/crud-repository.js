@@ -18,18 +18,11 @@ class CrudRepository {
                 id: dataId,
             },
         });
-        if(response == 0) {
-            throw new AppError('Resource does not exist to delete', StatusCodes.NOT_FOUND);
-        }
         return response;
     }
 
     async getTuple(dataId) {
         const response = await this.model.findByPk(dataId);
-        console.log(response);
-        if(response == null) {
-            throw new AppError('Cannot find the resource', StatusCodes.NOT_FOUND);
-        }
         return response;
     }
 

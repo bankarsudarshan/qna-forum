@@ -47,12 +47,12 @@ async function getQuestions() {
 async function getQuestion(id) {
     try {
         const question = await questionRepository.getTuple(id);
+        if(question == null) {
+            throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
+        }
         return question;
     } catch (error) {
-        if(error.statusCode == StatusCodes.NOT_FOUND) {
-            throw new AppError('Required question not found', error.statusCode);
-        }
-        throw new AppError('Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);
+        throw new AppError('AppError', 'Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -61,10 +61,10 @@ async function deleteQuestion(id) {
         const response = await questionRepository.deleteTuple(id);
         return response;
     } catch (error) {
-        if(error.statusCode == StatusCodes.NOT_FOUND) {
-            throw new AppError('Required question does not exist to delete', error.statusCode);
+        if(response == 0) {
+            throw new AppError('Resource does not exist to delete', StatusCodes.NOT_FOUND);
         }
-        throw new AppError('Cannot delete the question', StatusCodes.INTERNAL_SERVER_ERROR);
+        throw new AppError('AppError', 'Cannot delete the question', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
