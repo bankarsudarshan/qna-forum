@@ -4,7 +4,19 @@ const AppError = require("../utils/error-handlers/app-error");
 
 function validateCreateRequest(req, res, next) {
 
-    const { title, description, categories, userId } = req.body;
+    const { title, description} = req.body;
+    const userId = req.user.id;
+
+    console.log(req.user);
+    console.log("Received categories:", req.body.categories);
+
+    const categories = Array.isArray(req.body.categories)
+    ? req.body.categories
+    : req.body.categories.split(",").map((cat) => cat.trim());
+
+
+
+
 
     const errors = [];
 
@@ -22,6 +34,9 @@ function validateCreateRequest(req, res, next) {
     }
 
     if (errors.length > 0) {
+        console.log(errors.length);
+        console.log(errors[0]);
+        console
         ErrorResponse.message = "invalid request for creating a question";
         ErrorResponse.error = new AppError(errors, StatusCodes.BAD_REQUEST);
         return res

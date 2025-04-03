@@ -18,7 +18,17 @@ const fs = require('fs');
 */
 async function questionControllerPOST(req, res) {
     try {
-        const { title, description, userId, categories, parentQuestionId } = req.body;
+        
+        const { title, description, parentQuestionId } = req.body;
+        const userId = req.user.id;
+
+        const categories = Array.isArray(req.body.categories)
+        ? req.body.categories
+        : [req.body.categories];
+
+
+        
+
 
         const numOfFiles = req.files.length;
 
