@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { QuestionService, FileService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
+const { getQuestionsByCategory } = require('../services/question-service');
 const Cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 
@@ -121,6 +122,24 @@ async function questionControllerGET(req, res) {
     }
 }
 
+async function fetchQuestionsByCategory(req, res) {
+    try {
+        const { categoryName } = req.params;
+        const questions = await QuestionService.getQuestionsByCategory(categoryName);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Questions fetched successfully",
+            data: questions,
+        });
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
+
 /*
  * DELETE: /questions/:questionId
  * example: /questions/34256
@@ -162,4 +181,5 @@ module.exports = {
     questionControllerGET,
     questionControllerDELETE,
     questionControllerUPDATE,
+    fetchQuestionsByCategory
 };

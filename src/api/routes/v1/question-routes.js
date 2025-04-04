@@ -24,4 +24,7 @@ router.delete("/",
     QuestionControllers.questionControllerDELETE
 );
 
+router.get("/by-category/:categoryName", QuestionControllers.fetchQuestionsByCategory);
+
+
 module.exports = router;

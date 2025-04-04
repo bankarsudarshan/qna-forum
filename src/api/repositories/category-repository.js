@@ -48,6 +48,9 @@ class CategoryRepository extends CrudRepository {
             throw error;
         }
     }
+
+    
+      
 }
 
 module.exports = CategoryRepository;

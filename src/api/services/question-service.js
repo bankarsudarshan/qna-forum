@@ -80,6 +80,16 @@ async function updateQuestion(id, data) { // this will update the capacity of th
     }
 }
 
+async function getQuestionsByCategory(categoryName) {
+    try {
+        const questions = await questionRepository.getQuestionsByCategory(categoryName);
+        return questions;
+    } catch (error) {
+        throw new AppError("Failed to fetch questions by category", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+
 module.exports = {
     insertQuestion,
     addCategoriesToQuestion,
@@ -87,4 +97,5 @@ module.exports = {
     getQuestion,
     deleteQuestion,
     updateQuestion,
+    getQuestionsByCategory
 };

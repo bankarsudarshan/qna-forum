@@ -44,6 +44,9 @@ async function getCategory(id) {
     }
 }
 
+
+
+
 module.exports = {
     insertCategory,
     getCategories,
