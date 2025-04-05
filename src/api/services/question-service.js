@@ -1,9 +1,10 @@
 const { StatusCodes } = require("http-status-codes");
-const { QuestionRepository, CategoryRepository } = require('../repositories');
+const { QuestionRepository, CategoryRepository, FileRepository } = require('../repositories');
 const AppError = require("../utils/error-handlers/app-error");
 
 const questionRepository = new QuestionRepository();
 const categoryRepository = new CategoryRepository();
+const fileRepository = new FileRepository();
 
 async function insertQuestion(data) {
     try {
@@ -37,10 +38,10 @@ async function addCategoriesToQuestion(question, categories) {
 
 async function getQuestions() {
     try {
-        const questions = await questionRepository.getAllTuples();
+        const questions = await questionRepository.getAllQuestions();
         return questions;
     } catch(error) {
-        throw new AppError('Cannot fetch all questions', StatusCodes.INTERNAL_SERVER_ERROR);
+        throw new AppError('AppError', 'Cannot fetch all questions', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -61,9 +62,6 @@ async function deleteQuestion(id) {
         const response = await questionRepository.deleteTuple(id);
         return response;
     } catch (error) {
-        if(response == 0) {
-            throw new AppError('Resource does not exist to delete', StatusCodes.NOT_FOUND);
-        }
         throw new AppError('AppError', 'Cannot delete the question', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }

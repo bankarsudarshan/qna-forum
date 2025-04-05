@@ -6,6 +6,15 @@ class QuestionRepository extends CrudRepository {
         super(Question);
     }
 
+    async getAllQuestions() {
+        try {
+            const questions = await this.model.findAll();
+            return questions;
+        } catch (error) {
+            console.log("got error: ", error);
+        }
+    }
+
     async getQuestionsByCategory(categoryName) {  // ✅ No "function" keyword
         try {
             // Step 1: Get category ID

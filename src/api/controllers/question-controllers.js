@@ -23,13 +23,7 @@ async function questionControllerPOST(req, res) {
         const { title, description, parentQuestionId } = req.body;
         const userId = req.user.id;
 
-        const categories = Array.isArray(req.body.categories)
-        ? req.body.categories
-        : [req.body.categories];
-
-
-        
-
+        const categories = Array.isArray(req.body.categories) ? req.body.categories : [req.body.categories];
 
         const numOfFiles = req.files.length;
 
