@@ -1,5 +1,6 @@
 module.exports = {
     QuestionMiddlewares: require('./question-middlewares'),
     MulterMiddleware: require('./multer-middleware'),
-    AuthMiddleware: require('./auth-middleware')
+    AuthMiddleware: require('./auth-middleware'),
+    AnswerMiddlewares: require('./answer-middlewares'),
 }
