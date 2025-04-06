@@ -3,7 +3,6 @@ const { QuestionRepository, CategoryRepository, FileRepository } = require('../r
 const AppError = require("../utils/error-handlers/app-error");
 
 const questionRepository = new QuestionRepository();
-const categoryRepository = new CategoryRepository();
 const fileRepository = new FileRepository();
 
 async function insertQuestion(data) {
