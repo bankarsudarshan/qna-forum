@@ -1,0 +1,371 @@
+question-controller.js
+
+const { StatusCodes } = require("http-status-codes");
+const { QuestionService, FileService } = require("../services");
+const { SuccessResponse, ErrorResponse } = require("../utils/responses");
+const { getQuestionsByCategory } = require('../services/question-service');
+const Cloudinary = require('../utils/cloudinary');
+const fs = require('fs');
+
+/*
+ * POST: /questions
+ * description: Create a new question
+ * req-body:
+        {
+            "title": "How does event loop work in Node.js?",
+            "description": "I'm confused about the event loop in Node.js...",
+            "userId": 123,
+            "categories": ["javascript", "nodejs"],
+            "parentQuestionId": null
+        }
+*/
+async function questionControllerPOST(req, res) {
+    try {
+        
+        const { title, description, parentQuestionId } = req.body;
+        const userId = req.user.id;
+
+        const categories = Array.isArray(req.body.categories) ? req.body.categories : [req.body.categories];
+
+        const numOfFiles = req.files.length;
+
+        const questionData = {
+            title,
+            description,
+            user_id: userId,
+            num_of_files: numOfFiles,
+            parent_question_id: parentQuestionId || null
+        };
+
+        const questionRes = await QuestionService.insertQuestion(questionData);
+
+        // Insert categories
+        const categoryRes = await QuestionService.addCategoriesToQuestion(questionRes, categories);
+
+        // Upload files to Cloudinary
+        let uploadedFiles = [];
+        let filePaths = [];
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const cloudinaryRes = await Cloudinary.uploadOnCloudinary(file.path);
+                uploadedFiles.push({
+                    cloudinary_public_id: cloudinaryRes.public_id,
+                    url: cloudinaryRes.secure_url,
+                    file_type: cloudinaryRes.resource_type,
+                    entity_type: 'question',
+                    entity_id: questionRes.id,
+                });
+                filePaths.push(file.path) //used for fs.unlinkSync later
+            }
+        }
+        const filesRes = await FileService.insertFiles(uploadedFiles);
+        // all files associated with question have been uploaded to cloudinary. Remove them from the server
+        for(let filePath of filePaths) {
+            fs.unlinkSync(filePath);
+        }
+
+        SuccessResponse.message = "Successfully created a new question.";
+        SuccessResponse.data = {
+            questionRes,
+            categoryRes,
+            filesRes
+        };
+
+        return res.status(StatusCodes.CREATED).json(SuccessResponse);
+
+    } catch (error) {
+        console.error("Error while creating question:", error);
+        ErrorResponse.message = "Error occurred while inserting the question in database";
+        ErrorResponse.error = error;
+        return res.status(error.statusCode).json(ErrorResponse);
+    }
+}
+
+/*
+ * GET: /questions
+*/
+async function questionControllerGETAll(req, res) {
+    try {
+        const questions = await QuestionService.getQuestions();
+        SuccessResponse.data = questions;
+        return res
+                .status(StatusCodes.OK)
+                .json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = error;
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
+
+/*
+ * GET: /questions/:questionId
+ * example: /questions/34256
+*/
+async function questionControllerGET(req, res) {
+    try {
+        const question = await QuestionService.getQuestion(req.params.id);
+        SuccessResponse.data = question;
+        return res
+                .status(StatusCodes.OK)
+                .json(SuccessResponse); 
+    } catch (error) {
+        ErrorResponse.error = error;
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
+
+async function fetchQuestionsByCategory(req, res) {
+    try {
+        const { categoryName } = req.params;
+        const questions = await QuestionService.getQuestionsByCategory(categoryName);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Questions fetched successfully",
+            data: questions,
+        });
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
+
+/*
+ * DELETE: /questions/:questionId
+ * example: /questions/34256
+*/
+async function questionControllerDELETE(req, res) {
+    try {
+        const response = await QuestionService.deleteQuestion(req.params.id);
+        SuccessResponse.data = response;
+        return res
+                .status(StatusCodes.OK)
+                .json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = error;
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
+
+async function questionControllerUPDATE(req, res) {
+    try {
+        const data = new Object(req.body);
+        const response = await QuestionService.updateQuestion(req.params.id, data);
+        SuccessResponse.data = response;
+        return res
+                .status(StatusCodes.OK)
+                .json(SuccessResponse);
+    } catch (error) {
+        ErrorResponse.error = error;
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
+
+module.exports = {
+    questionControllerPOST,
+    questionControllerGETAll,
+    questionControllerGET,
+    questionControllerDELETE,
+    questionControllerUPDATE,
+    fetchQuestionsByCategory
+};
+
+------------------------------------------------------------------------------
+
+
+question-service.js
+const { StatusCodes } = require("http-status-codes");
+const { QuestionRepository, CategoryRepository, FileRepository } = require('../repositories');
+const AppError = require("../utils/error-handlers/app-error");
+
+const questionRepository = new QuestionRepository();
+const fileRepository = new FileRepository();
+
+async function insertQuestion(data) {
+    try {
+        const question = await questionRepository.insertTuple(data);
+        return question;
+    } catch (error) {
+        // console.log("got error ", error);
+        let explanation = [];
+        error.errors.forEach((err) => {
+            explanation.push(`question's ${err.message}`);
+        });
+        if (error.name == "SequelizeValidationError") {
+            throw new AppError("DatabaseValidationError", explanation, StatusCodes.BAD_REQUEST);
+        } else if (error.name == "SequelizeUniqueConstraintError") {
+            throw new AppError("DatabaseUniqueConstraintError", explanation, StatusCodes.BAD_REQUEST);
+        }
+        throw new AppError("AppError", explanation, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function addCategoriesToQuestion(question, categories) {
+    try {
+        const categoryIds = await categoryRepository.getCategoryIds(categories);
+        const response = await question.addCategories(categoryIds);
+        return response;
+    } catch (error) {
+        console.log('something went wrong in the addCategoriesToQuestion function of QuestionService');
+        throw error;
+    }
+}
+
+async function getQuestions() {
+    try {
+        const questions = await questionRepository.getAllQuestions();
+        return questions;
+    } catch(error) {
+        throw new AppError('AppError', 'Cannot fetch all questions', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function getQuestion(id) {
+    try {
+        const question = await questionRepository.getQuestion(id);
+        if(question == null) {
+            throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
+        }
+
+        const associatedFiles = await fileRepository.fetchFiles('question', id);
+
+        return { question, associatedFiles };
+    } catch (error) {
+        throw new AppError('AppError', 'Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function deleteQuestion(id) {
+    try {
+        const response = await questionRepository.deleteTuple(id);
+        return response;
+    } catch (error) {
+        throw new AppError('AppError', 'Cannot delete the question', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function updateQuestion(id, data) { // this will update the capacity of the question
+    try {
+        const response = await questionRepository.updateTuple(id, data);
+        return response;
+    } catch (error) {
+        if(error.statusCode == StatusCodes.NOT_FOUND) {
+            throw new AppError('Required question does not exist to update', error.statusCode);
+        }
+        throw new AppError('Cannot update question', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function getQuestionsByCategory(categoryName) {
+    try {
+        const questions = await questionRepository.getQuestionsByCategory(categoryName);
+        return questions;
+    } catch (error) {
+        throw new AppError("Failed to fetch questions by category", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
+
+module.exports = {
+    insertQuestion,
+    addCategoriesToQuestion,
+    getQuestions,
+    getQuestion,
+    deleteQuestion,
+    updateQuestion,
+    getQuestionsByCategory
+};
+
+
+-----------------------------------------------------------------------------
+
+
+question-repoitory.js
+
+const CrudRepository = require('./crud-repository');
+const { Question, Question_Categories, Category } = require('../../db/models');
+
+class QuestionRepository extends CrudRepository {
+    constructor() {
+        super(Question);
+    }
+
+    async getAllQuestions() {
+        try {
+            const questions = await this.model.findAll();
+            return questions;
+        } catch (error) {
+            console.log("got error: ", error);
+        }
+    }
+
+    async getQuestion(questionId) {
+        try {
+            const question = await this.model.findOne({
+                where: {id: questionId},
+                include: {
+                    model: Category,
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    through: {
+                        attributes: [],
+                    }
+                },
+            });
+            return question;
+        } catch (error) {
+            console.log("got error: ", error);
+        }
+    }
+
+    async getQuestionsByCategory(categoryName) {  // ✅ No "function" keyword
+        try {
+            // Step 1: Get category ID
+            const category = await Category.findOne({
+                where: { name: categoryName.trim() },  // ✅ trim() added here
+                attributes: ["id"],
+            });
+            
+
+            if (!category) {
+                return []; // No such category exists
+            }
+
+            // Step 2: Get all question IDs from question_categories table
+            const questionCategories = await Question_Categories.findAll({
+                where: { category_id: category.id }, // use snake_case column names
+                attributes: ["question_id"],
+            });
+            
+
+            const questionIds = questionCategories.map(qc => qc.question_id);
+
+
+            if (questionIds.length === 0) {
+                return []; // No questions in this category
+            }
+
+            // Step 3: Fetch questions based on retrieved IDs
+            const questions = await Question.findAll({
+                where: { id: questionIds },
+            });
+
+            return questions;
+        } catch (error) {
+            console.error("Error in getQuestionsByCategory:", error);
+            throw error;
+        }
+    }
+}
+
+module.exports = QuestionRepository;
+

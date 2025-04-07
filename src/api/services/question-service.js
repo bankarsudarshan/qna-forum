@@ -51,8 +51,11 @@ async function getQuestion(id) {
         if(question == null) {
             throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
         }
-        return question;
+        const associatedFiles = await fileRepository.fetchFiles('question', id);
+
+        return { question, associatedFiles };
     } catch (error) {
+        console.log(error);
         throw new AppError('AppError', 'Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
