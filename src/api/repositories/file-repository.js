@@ -1,5 +1,6 @@
 const CrudRepository = require('./crud-repository');
 const { File } = require('../../db/models');
+const AppError = require('../utils/error-handlers/app-error');
 
 class FileRepository extends CrudRepository {
     constructor() {

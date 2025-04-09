@@ -47,10 +47,11 @@ async function getQuestions() {
 
 async function getQuestion(id) {
     try {
-        const question = await questionRepository.getTuple(id);
+        const question = await questionRepository.getQuestion(id);
         if(question == null) {
             throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
         }
+
         const associatedFiles = await fileRepository.fetchFiles('question', id);
 
         return { question, associatedFiles };
