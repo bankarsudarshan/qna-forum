@@ -26,8 +26,10 @@ class CrudRepository {
         return response;
     }
 
-    async getAllTuples(dataId) {
-        const response = await this.model.findAll(dataId);
+    async getAllTuples(whereQuery) {
+        const response = await this.model.findAll({
+            where: whereQuery,
+        });
         return response;
     }      
 

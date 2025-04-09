@@ -25,7 +25,7 @@ async function insertCategory(data) {
 
 async function getCategories() {
     try {
-        const categories = await categoryRepository.getAllTuples();
+        const categories = await categoryRepository.getAllTuples({});
         return categories;
     } catch(error) {
         throw new AppError('Cannot fetch all categories', StatusCodes.INTERNAL_SERVER_ERROR);

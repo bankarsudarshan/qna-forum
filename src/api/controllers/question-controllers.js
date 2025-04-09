@@ -1,7 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const { QuestionService, FileService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
-const { getQuestionsByCategory } = require('../services/question-service');
 const Cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
 

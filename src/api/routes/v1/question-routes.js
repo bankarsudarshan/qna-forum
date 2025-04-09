@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { QuestionMiddlewares, MulterMiddleware, AuthMiddleware } = require('../../middlewares');
-const { QuestionControllers } = require('../../controllers')
+const { QuestionControllers, VoteControllers } = require('../../controllers')
 
 const router = Router();
 
@@ -16,6 +16,10 @@ router.post("/",
     MulterMiddleware.addUserToReqBody,
     QuestionMiddlewares.validateCreateRequest,
     QuestionControllers.questionControllerPOST
+);
+router.post("/:id/vote",
+    AuthMiddleware.isAuthenticated,
+    VoteControllers.vote,
 );
 router.put("/",
     QuestionControllers.questionControllerUPDATE
