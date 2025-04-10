@@ -1,9 +1,11 @@
 const { StatusCodes } = require("http-status-codes");
-const { QuestionRepository, CategoryRepository, FileRepository } = require('../repositories');
+const { QuestionRepository, CategoryRepository, FileRepository, AnswerRepository } = require('../repositories');
 const AppError = require("../utils/error-handlers/app-error");
 
 const questionRepository = new QuestionRepository();
 const fileRepository = new FileRepository();
+const categoryRepository = new CategoryRepository();   
+const answerRepository = new AnswerRepository(); 
 
 async function insertQuestion(data) {
     try {
@@ -47,18 +49,35 @@ async function getQuestions() {
 async function getQuestion(id) {
     try {
         const question = await questionRepository.getQuestion(id);
-        if(question == null) {
+        if (!question) {
             throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
         }
 
         const associatedFiles = await fileRepository.fetchFiles('question', id);
+        const answers = await answerRepository.getAnswersByQuestionId(id);
 
-        return { question, associatedFiles };
+        // ✅ Fetch answer files and bundle them with each answer
+        const enrichedAnswers = await Promise.all(
+            answers.map(async (ans) => {
+                const answerFiles = await fileRepository.fetchFiles('answer', ans.id);
+                return {
+                    answerData: ans,
+                    answerFiles: answerFiles || [],
+                };
+            })
+        );
+
+        return {
+            question,
+            associatedFiles,
+            answers: enrichedAnswers, // ✅ now includes answerFiles with each answer
+        };
     } catch (error) {
         console.log(error);
         throw new AppError('AppError', 'Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
+
 
 async function deleteQuestion(id) {
     try {
