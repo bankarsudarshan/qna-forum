@@ -4,6 +4,7 @@ const AppError = require("../utils/error-handlers/app-error");
 
 const questionRepository = new QuestionRepository();
 const fileRepository = new FileRepository();
+const categoryRepository = new CategoryRepository();
 
 async function insertQuestion(data) {
     try {
@@ -50,10 +51,10 @@ async function getQuestion(id) {
         if(question == null) {
             throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
         }
-
+        const newQuesViewCount = await questionRepository.updateTuple(question.id, { views: question.views + 1 });
         const associatedFiles = await fileRepository.fetchFiles('question', id);
 
-        return { question, associatedFiles };
+        return { question, newQuesViewCount, associatedFiles };
     } catch (error) {
         console.log(error);
         throw new AppError('AppError', 'Cannot get the question', StatusCodes.INTERNAL_SERVER_ERROR);

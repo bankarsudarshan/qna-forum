@@ -8,6 +8,7 @@ router.get("/",
     QuestionControllers.questionControllerGETAll
 );
 router.get("/:id",
+    AuthMiddleware.isAuthenticated,
     QuestionControllers.questionControllerGET
 );
 router.post("/",
@@ -28,7 +29,9 @@ router.delete("/",
     QuestionControllers.questionControllerDELETE
 );
 
-router.get("/by-category/:categoryName", QuestionControllers.fetchQuestionsByCategory);
+router.get("/by-category/:categoryName",
+    QuestionControllers.fetchQuestionsByCategory
+);
 
 
 module.exports = router;
