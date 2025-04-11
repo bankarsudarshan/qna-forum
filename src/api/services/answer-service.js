@@ -27,7 +27,12 @@ async function getAnswersByQuestionId(questionId) {
     }
 }
 
+async function getAnswer(answerId) {
+    return await answerRepository.getAnswerWithVotes(answerId);
+  }
+
 module.exports = {
     insertAnswer,
-    getAnswersByQuestionId
+    getAnswersByQuestionId,
+    getAnswer
 };

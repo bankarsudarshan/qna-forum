@@ -2,6 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
 const { VoteService } = require("../services");
 const { getQuestion } = require("../services/question-service");
+const { getAnswer } = require("../services/answer-service");
 
 async function vote(req, res) {
   const urlComponentsArray = req.originalUrl.split('/');
@@ -16,16 +17,18 @@ async function vote(req, res) {
 
     await VoteService.vote(entityType, data);
 
+    let updatedEntity = null;
+
     if (entityType === 'questions') {
-      const updatedQuestion = await getQuestion(data.entityId);
-      SuccessResponse.message = "Vote was registered successfully.";
-      console.log(updatedQuestion);
-      SuccessResponse.data = updatedQuestion;
-      return res.status(StatusCodes.CREATED).json(SuccessResponse);
+      updatedEntity = await getQuestion(data.entityId);
+    } else if (entityType === 'answers') {
+      updatedEntity = await getAnswer(data.entityId);
     }
 
+    console.log(updatedEntity)
+
     SuccessResponse.message = "Vote was registered successfully.";
-    SuccessResponse.data = null;
+    SuccessResponse.data = updatedEntity;
     return res.status(StatusCodes.CREATED).json(SuccessResponse);
 
   } catch (error) {
