@@ -12,7 +12,7 @@ async function insertQuestion(data) {
         const question = await questionRepository.insertTuple(data);
         return question;
     } catch (error) {
-        // console.log("got error ", error);
+        
         let explanation = [];
         error.errors.forEach((err) => {
             explanation.push(`question's ${err.message}`);
