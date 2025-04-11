@@ -21,7 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Answer, {
         foreignKey: 'question_id',
         sourceKey: 'id',
-      })
+      });
+      this.hasMany(models.Question_Vote, {
+        foreignKey: 'question_id',
+        sourceKey: 'id',
+      });
     }
   }
   Question.init({
