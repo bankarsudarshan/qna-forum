@@ -4,4 +4,5 @@ module.exports = {
     FileRepository: require('./file-repository'),
     AnswerRepository: require('./answer-repository'),
     VoteRepository: require('./vote-repository'),
+    TrendingRepository: require('./trending-repository')
 }
