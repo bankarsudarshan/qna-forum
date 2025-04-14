@@ -23,6 +23,7 @@ async function getUnansweredFromActiveCategories(req, res) {
     try {
         const response = await UserService.getUnansweredFromActiveCategories(req.user.id);
         SuccessResponse.data = response;
+        console.log("unanswered questions ",SuccessResponse.data );
         return res.status(StatusCodes.OK).json(SuccessResponse);
     } catch (error) {
         console.error('Error in controller:', error);

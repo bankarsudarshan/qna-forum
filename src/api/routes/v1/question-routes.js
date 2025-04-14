@@ -8,7 +8,7 @@ router.get("/",
     QuestionControllers.questionControllerGETAll
 );
 router.get("/:id",
-    AuthMiddleware.isAuthenticated,
+    // AuthMiddleware.isAuthenticated,
     QuestionControllers.questionControllerGET
 );
 router.post("/",
