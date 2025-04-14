@@ -10,9 +10,9 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     await queryInterface.addConstraint( 'user_activities', {
-      fields: ["user_id", "entity_id", "entity_type"],
+      fields: ["user_id", "question_id"],
       type: "unique",
-      name: "unique_user_entity_view",
+      name: "unique_user_question_view",
     })
   },
 
@@ -23,6 +23,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeConstraint('user_activities', 'unique_user_entity_view');
+    await queryInterface.removeConstraint('user_activities', 'unique_user_question_view');
   }
 };

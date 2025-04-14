@@ -7,23 +7,19 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       user_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
       },
-      entity_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      entity_type: {
+      question_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'entities',
+          model: 'questions',
           key: 'id',
         },
+        onDelete: 'CASCADE',
       },
       view_count: {
         type: Sequelize.INTEGER,
@@ -34,7 +30,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.fn("NOW"),
-      }
+      },
     });
   },
   async down(queryInterface, Sequelize) {

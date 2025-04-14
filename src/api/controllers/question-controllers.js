@@ -97,19 +97,16 @@ async function questionControllerGETAll(req, res) {
 }
 
 /*
- * GET: /questions/:questionId
+ * GET: /questions/:id
  * example: /questions/34256
 */
 async function questionControllerGET(req, res) {
     try {
         const question = await QuestionService.getQuestion(req.params.id);
-        console.log('hi1');
         if(req.user && req.user.id) {
-            console.log('hi2');
             // if the user is signed in / if the request is coming via the auth-middleware
-            await ViewService.createUserActivity(req.user.id, 'question', req.params.id);
+            await ViewService.createUserActivity(req.user.id, req.params.id);
         }
-        console.log('hi10');
         SuccessResponse.data = question;
         return res
                 .status(StatusCodes.OK)

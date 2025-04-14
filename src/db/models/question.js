@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'question_id',
         sourceKey: 'id',
       });
+      this.hasMany(models.User_Activity, {
+        foreignKey: 'question_id',
+        sourceKey: 'id',
+      })
     }
   }
   Question.init({

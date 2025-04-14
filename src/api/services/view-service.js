@@ -3,16 +3,10 @@ const { UserActivityRepository, EntityRepository } = require('../repositories');
 const AppError = require("../utils/error-handlers/app-error");
 
 const userActivityRepository = new UserActivityRepository();
-const entityRepository = new EntityRepository();
 
-async function createUserActivity(user_id, entity_type, entity_id) {
+async function createUserActivity(user_id, question_id) {
     try {
-        entity_type = await entityRepository.getEntityType(entity_type);
-        const data = {
-            user_id,
-            entity_id,
-            entity_type,
-        }
+        const data = { user_id, question_id };
         const userActivity = await userActivityRepository.getOne(data);
         console.log(userActivity)
         if (userActivity) {
@@ -25,8 +19,7 @@ async function createUserActivity(user_id, entity_type, entity_id) {
             // If no record exists, create a new one
             await userActivityRepository.insertTuple({
               user_id,
-              entity_id,
-              entity_type,
+              question_id,
               view_count: 1,
               last_viewed_at: new Date(),
             });

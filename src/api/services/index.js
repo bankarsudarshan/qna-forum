@@ -4,4 +4,5 @@ module.exports = {
     AnswerService: require('./answer-service'),
     VoteService: require('./vote-service'),
     ViewService: require('./view-service'),
+    UserService: require('./user-service'),
 }

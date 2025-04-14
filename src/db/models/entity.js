@@ -9,10 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.User_Activity, {
-        foreignKey: 'entity_id',
-        sourceKey: 'id',
-      })
     }
   }
   Entity.init({

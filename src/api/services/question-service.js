@@ -51,7 +51,13 @@ async function getQuestion(id) {
         if(question == null) {
             throw new AppError('NotFoundError', 'Cannot find the resource', StatusCodes.NOT_FOUND);
         }
-        const newQuesViewCount = await questionRepository.updateTuple(question.id, { views: question.views + 1 });
+        const updatedQuestionTuple = await questionRepository.updateTuple(question.id, { views: question.views + 1 });
+        console.log(updatedQuestionTuple[1]);
+        const newQuesViewCount = {
+            questionId: updatedQuestionTuple[1][0].id, 
+            views: updatedQuestionTuple[1][0].views,
+        }
+
         const associatedFiles = await fileRepository.fetchFiles('question', id);
 
         return { question, newQuesViewCount, associatedFiles };

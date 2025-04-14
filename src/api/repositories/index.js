@@ -6,4 +6,5 @@ module.exports = {
     VoteRepository: require('./vote-repository'),
     EntityRepository: require('./entity-repository'),
     UserActivityRepository: require('./user-activity-repository'),
+    UserRepository: require('./user-repository'),
 }
