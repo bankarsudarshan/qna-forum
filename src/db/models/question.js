@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Answer, {
         foreignKey: 'question_id',
         sourceKey: 'id',
+      });
+      this.hasMany(models.Question_Vote, {
+        foreignKey: 'question_id',
+        sourceKey: 'id',
+      });
+      this.hasMany(models.User_Activity, {
+        foreignKey: 'question_id',
+        sourceKey: 'id',
       })
     }
   }
@@ -59,6 +67,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
     },
     vote_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    views: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,

@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const { QuestionService, FileService } = require("../services");
+const { QuestionService, FileService, ViewService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/responses");
 const Cloudinary = require('../utils/cloudinary');
 const fs = require('fs');
@@ -97,12 +97,16 @@ async function questionControllerGETAll(req, res) {
 }
 
 /*
- * GET: /questions/:questionId
+ * GET: /questions/:id
  * example: /questions/34256
 */
 async function questionControllerGET(req, res) {
     try {
         const question = await QuestionService.getQuestion(req.params.id);
+        if(req.user && req.user.id) {
+            // if the user is signed in / if the request is coming via the auth-middleware
+            await ViewService.createUserActivity(req.user.id, req.params.id);
+        }
         SuccessResponse.data = question;
         return res
                 .status(StatusCodes.OK)

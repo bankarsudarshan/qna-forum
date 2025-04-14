@@ -1,7 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Question_Vote extends Model {
+  class User_Activity extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -12,33 +12,37 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Question, {
         foreignKey: 'question_id',
         targetKey: 'id',
-      });
+      })
     }
   }
-  Question_Vote.init({
-    question_id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      references: {
-        model: 'questions',
-        key: 'id'
-      },
-      allowNull: false,
-    },
+  User_Activity.init({
     user_id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       allowNull: false,
     },
-    vote_type: {
-      type: DataTypes.BOOLEAN,
+    question_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'questions',
+        key: 'id',
+      },
     },
-   }, {
+    view_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    last_viewed_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    }
+  }, {
     sequelize,
-    modelName: 'Question_Vote',
-    tableName: 'question_votes',
-    timestamps: false,
+    modelName: 'User_Activity',
+    tableName: 'user_activities',
+    timestamps: false
   });
-  return Question_Vote;
+  return User_Activity;
 };

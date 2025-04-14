@@ -26,9 +26,16 @@ class CrudRepository {
         return response;
     }
 
-    async getAllTuples(whereQuery) {
+    async getOne(data) {
+        return await this.model.findOne({
+            where: data,
+        });
+    }
+
+    async getAllTuples(whereOption, includeOption) {
         const response = await this.model.findAll({
-            where: whereQuery,
+            where: whereOption,
+            include: includeOption,
         });
         return response;
     }      
@@ -39,7 +46,6 @@ class CrudRepository {
             where: { id: id, },
             returning: true,
         });
-        console.log(response);
         // response: [ affectedRowsCount, [array of affectedRows] ]
         // console.log(response instanceof Array); // true
         if(response[0] === 0) {
