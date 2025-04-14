@@ -19,6 +19,19 @@ async function getUsersActiveCategories(req, res) {
     }
 }
 
+async function getUnansweredFromActiveCategories(req, res) {
+    try {
+        const response = await UserService.getUnansweredFromActiveCategories(req.user.id);
+        SuccessResponse.data = response;
+        return res.status(StatusCodes.OK).json(SuccessResponse);
+    } catch (error) {
+        console.error('Error in controller:', error);
+        ErrorResponse.error = error;
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ErrorResponse);
+    }
+}
+
 module.exports = {
     getUsersActiveCategories,
+    getUnansweredFromActiveCategories,
 }

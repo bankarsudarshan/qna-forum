@@ -72,6 +72,33 @@ class QuestionRepository extends CrudRepository {
             throw error;
         }
     }
+
+    async getUnansweredQuestionsByCategories(categoryIds) {
+        try {
+            const questions = await Question.findAll({
+                where: {
+                    num_of_answers: 0
+                },
+                include: [
+                    {
+                        model: Category,
+                        where: {
+                            id: categoryIds
+                        },
+                        through: { attributes: [] },
+                        attributes: ['id', 'name']
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
+    
+            return questions;
+        } catch (error) {
+            console.log("Error in getUnansweredQuestionsByCategories:", error);
+            throw error;
+        }
+    }
+    
 }
 
 module.exports = QuestionRepository;

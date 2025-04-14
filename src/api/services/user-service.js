@@ -1,6 +1,7 @@
 const { UserRepository, QuestionRepository, AnswerRepository } = require('../repositories');
 
 const userRepository = new UserRepository();
+const questionRepository = new QuestionRepository();
 
 async function getUsersActiveCategories(userId) {
     try {
@@ -40,7 +41,6 @@ async function getUsersActiveCategories(userId) {
                 score: data.score
             }))
             .sort((a, b) => b.score - a.score);
-        console.log(result);
         return result;
     } catch (error) {
         console.log('something went wrong in the services layer:', error);
@@ -48,6 +48,27 @@ async function getUsersActiveCategories(userId) {
     }
 }
 
+async function getUnansweredFromActiveCategories(userId) {
+    try {
+        // 1. Step: Get user's most active categories
+        const activeCategories = await getUsersActiveCategories(userId);
+        console.log(activeCategories);
+        const categoryIds = activeCategories.map(c => c.id);
+
+        if (categoryIds.length === 0) return [];
+
+        // 2. Step: Fetch unanswered questions in those categories
+        const questions = await questionRepository.getUnansweredQuestionsByCategories(categoryIds);
+
+        return questions;
+    } catch (error) {
+        console.log('Error in getUnansweredFromActiveCategories');
+        throw error;
+    }
+}
+
+
 module.exports = {
     getUsersActiveCategories,
+    getUnansweredFromActiveCategories,
 }
